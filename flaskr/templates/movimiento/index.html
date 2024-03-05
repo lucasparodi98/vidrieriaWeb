@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Movimientos{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<style>
+  div.dataTables_length {
+    margin-right: 20em;
+  }
+
+  div.dtsp-title{
+    display: none;
+  }
+
+  .dtsp-searchPanes table {
+    display:table;
+  }
+
+  div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
+    margin-top: 0px !important;
+}
+
+</style>
+
+  <br>
+  <table id="inf_red_table" class="table table-bordered table-sm table-hover">
+    <thead>
+      <tr class="table-primary text-center align-middle" style="font-size: 0.90em;">
+        <th>Item</th>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Efectivo/Deposito</th>
+        <th>Monto</th>
+        <th>Observación</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody style="border: 1px solid black;">
+      {% for i in range(n) %}
+        <tr>
+          <td style="white-space: nowrap;" class="cu">{{ movimientos[i]['id'] }}</td>
+          <td style="white-space: nowrap;">{{ movimientos[i]['fecha_creacion'].strftime('%d/%m/%Y %H:%M:%S') }}</td>
+          <td style="{{ style_cell_tipo[i] }}">
+            {{ movimientos[i]['tipo'] }}
+          </td>
+          <td style="white-space: nowrap;">{{ movimientos[i]['destino'] }}</td>
+          <td style="white-space: nowrap;">{{ 'S/. {:,.2f}'.format(movimientos[i]['monto']) if movimientos[i]['monto'] else None }}</td>
+          
+          <td> <div class="largediv" style="font-size: small;"> {{ movimientos[i]['comentario'] }} </div> </td>
+          
+          <td>
+
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/searchpanes/2.2.0/js/dataTables.searchPanes.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+
+
+
+ 
+  <script>
+    $(document).ready(function () {
+
+      let table = $('#inf_red_table').DataTable({
+        /*searchPanes:{layout: 'columns-2'},*/
+        iDisplayLength: 25,
+        orderCellsTop: true,
+        ordering: false,
+        fixedHeader: true,
+        columns: [
+          {data: 'Item', orderable: false, searchable: false},
+          {data: 'Fecha', orderable: false, searchable: false},
+          {data: 'Tipo', orderable: false, searchable: false},
+          {data: 'Efectivo/Deposito', orderable: false, searchable: false},
+          {data: 'Monto', orderable: false, searchable: false},
+          {data: 'Observación', orderable: false, searchable: true},
+          {orderable: false, searchable: false}],
+        language: [
+          {info: "Mostrando _START_ a _END_ de _TOTAL_ entradas" },
+        ]
+      });
+      
+    });
+
+  </script>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Dashboard Tiempos Promedio [FALTA IMPLEMENTAR]{% endblock %}</h1>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_tiempos.css') }}">
+
+{% endblock %}
+
+{% block content %} 
+
+       
+            <!--=============== PROGRESS BAR ===================================================-->
+            <div style="padding: 0px 20px; padding-top:10px; text-align:center">
+                <div style="padding: 10px 20px; background-color:white; border-radius: 10px; box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);">
+                    <h2 style="margin-bottom: 10px; font-size: 20px; color: #666; text-align: left">Duracion promedio de un proyecto: {{tma_total}} días</h2>
+                    <div class="progressBar" style="background-color:magenta">
+                        <div id="tma_porc_info_red" class="progreso" style="width: {{tma_info_red/tma_total*100}}%; min-width:4%; background-color: blue; border-top-left-radius: 10px; border-bottom-left-radius: 10px">{{tma_info_red}} días</div>
+                        <div id="tma_porc_oc" class="progreso" style="width: {{tma_oc/tma_total*100}}%; min-width:4%; background-color: green">{{tma_oc}} días</div>
+                        <div id="tma_porc_diseño" class="progreso" style="width: {{tma_diseño/tma_total*100}}%; min-width:4%; background-color: red">{{tma_diseño}} días</div>
+                        <div id="tma_porc_ppto" class="progreso" style="width: {{tma_ppto/tma_total*100}}%; min-width:4%; background-color: orange">{{tma_ppto}} días</div>
+                        <div id="tma_porc_coord" class="progreso" style="min-width:4%; background-color: magenta; border-top-right-radius: 10px; border-bottom-right-radius: 10px">{{tma_coordinacion}} días</div>
+                    </div>
+                   <div class="leyenda">
+                    <div class="elementoLey">
+                        <div class="dot" style="background-color:blue"></div>
+                        <div onclick="window.location='tiempos_inf_red';"  class="textoLey" style="color:blue">Informacion de Red</div>
+                    </div>
+                    <div class="elementoLey">
+                        <div class="dot" style="background-color:green"></div>
+                        <div class="textoLey" style="color:green">Creacion OC</div>
+                    </div>
+                    <div class="elementoLey">
+                        <div class="dot" style="background-color:red"></div>
+                        <div onclick="window.location='tiempos_diseño';" class="textoLey" style="color:red">Diseño</div>
+                    </div>
+                    <div class="elementoLey">
+                        <div class="dot" style="background-color:orange"></div>
+                        <div onclick="window.location='tiempos_presupuesto';" class="textoLey" style="color:orange">Presupuesto</div>
+                    </div>
+                    <div class="elementoLey">
+                        <div class="dot" style="background-color:magenta"></div>
+                        <div onclick="window.location='tiempos_coordinacion';" class="textoLey" style="color:magenta">Coordinación</div>
+                    </div>
+                        
+                   </div>
+                </div>
+            </div>
+            
+            <!--=============== TARJETAS ===================================================-->
+            <div class="cards-4">
+                <div class="card_flex" style="cursor: pointer;" onclick="theFunction()">
+                    <div class="card-content">
+                        <div class="number" id="año">2024</div>
+                        <div class="card-name">Diseño</div>
+                        
+                    </div>
+                    <div class="icon-box">
+                        <i class="fal fa-pencil-ruler"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">{{ejecutados}}</div>
+                        <div class="card-name">Diseños Ejecutados</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fal fa-file-signature"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">S/. {{ejecutados_monto}}</div>
+                        <div class="card-name">Pagado</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fa-solid fa-hand-holding-usd"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">{{tma_diseño}} días</div>
+                        <div class="card-name">Tiempo Promedio de Diseño</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fal fa-clock"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!--=============== GRAFICOS ===================================================-->
+            <div class="charts">
+                <div class="chart">
+                    <h2>Diseños Ejecutados Por Mes</h2>
+                    <canvas id="DiseñosEjecutados" prom_mes="{{prom_mes}}" monto_mes="{{monto_mes}}" cant_mes="{{cant_mes}}"></canvas>
+                </div>
+                
+                <div class="chart doughnut-chart">
+                    <h2>Estado Actual de los Diseños Ejecutados</h2>
+                    <div style="float: center; position: relative;">
+                        <div style="width: 100%; position: absolute; top: 50%; left: 0; margin-top: 0px; text-align: center;">
+                            S/. {{ejecutados_monto}}<Br />
+                            {{ejecutados}} PPTOs
+                        </div>
+                        <canvas id="EstadoActual" estados_str="{{estados_str}}" cant_estados="{{cant_estados}}" monto_estados="{{monto_estados}}"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+
+       
+
+    {% endblock %}
+
+    {% block scripts %} 
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+   
+
+    <script>
+        $( document ).ready(function() {
+            
+        var ancho = parseFloat(document.getElementById('tma_porc_info_red').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_oc').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_diseño').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_ppto').style.width,10);
+        document.getElementById('tma_porc_coord').style.width = Math.floor(100-ancho)-2+'%';
+        /*====================Chart Pie - Estado Actual====================*/  
+        var cant_estados= JSON.parse(document.getElementById('EstadoActual').getAttribute('cant_estados')); 
+        var monto_estados= JSON.parse(document.getElementById('EstadoActual').getAttribute('monto_estados')); 
+        var estados_str= document.getElementById('EstadoActual').getAttribute('estados_str').split(",");    
+        var ctx = document.getElementById('EstadoActual').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: estados_str,
+                datasets: [{
+                    data: cant_estados,
+                    backgroundColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                
+                    ],
+
+                    borderWidth: 1
+                },
+                {
+
+                },
+                {
+                    data: monto_estados,
+                    backgroundColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                
+                    ],
+
+                    borderWidth: 1,
+                    datalabels:{
+                        formatter: function(value, context) {
+                            if(value >1000000 ){
+                                return 'S/. ' + Math.round(value/1000000*10)/10 + ' MM';
+                            }else if(value >=1000){
+                                return 'S/. ' + Math.round(value/1000*10)/10 + ' K';
+                                
+                            }else{
+                                return 'S/. ' + value;
+                            }
+                            
+                            
+                        }
+                    }
+                }
+            
+            
+            
+            
+            
+            
+                ]
+            },
+            options: {
+                cutout:'50%',
+                responsive: true,
+                plugins:{
+                    datalabels:{
+                        color:'white'
+                    },
+                    legend: {
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 6
+                            }
+                    }
+                },
+
+                
+            },
+            plugins: [ChartDataLabels]
+            
+            
+        });
+
+        /*====================Chart Bar - Diseños por mes====================*/
+        var cant_mes= JSON.parse(document.getElementById('DiseñosEjecutados').getAttribute('cant_mes'));
+        var prom_mes= JSON.parse(document.getElementById('DiseñosEjecutados').getAttribute('prom_mes'));
+        var monto_mes= JSON.parse(document.getElementById('DiseñosEjecutados').getAttribute('monto_mes'));
+        var ctx2 = document.getElementById('DiseñosEjecutados').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'],
+
+                datasets: [{
+                    label: 'Monto Pagado en Diseños',
+                    data: monto_mes,
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    order:2,
+                    yAxisID: 'y'
+                },{
+                    label: 'Cantidad de Diseños Ejecutados',
+                    data: cant_mes,
+                    backgroundColor: 'rgba(0, 0, 128, 1)',
+                    borderColor: 'rgba(0, 0, 128, 1)',
+                    type: 'line',
+                    order:1,
+                    yAxisID: 'y1'
+                },{
+                    label: 'Tiempo Promedio de Diseño (días)',
+                    data: prom_mes,
+                    backgroundColor: 'rgba(255, 140, 0, 1)',
+                    borderColor: 'rgba(255, 140, 0, 1)',
+                    type: 'line',
+                    order:1,
+                    yAxisID: 'y1'
+                }]
+
+            },
+            options: {
+                responsive: true,
+                scales:{
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            display: false
+                        }
+                    },
+                    x:{
+                        grid: {
+                            display: false
+                        }
+                    }
+                    
+                }
+            }
+        });
+
+
+
+    });
+
+
+
+
+        function theFunction() {
+          año = document.getElementById("año").innerHTML;
+          if (año == "2024") {
+            document.getElementById("año").textContent = "2023";
+          } else {
+            document.getElementById("año").textContent = "2024";
+          }
+        }
+    </script>
+
+{% endblock %}

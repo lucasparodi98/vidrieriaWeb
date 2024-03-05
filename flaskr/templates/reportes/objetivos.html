@@ -1,0 +1,544 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Dashboard Objetivos [FALTA IMPLEMENTAR]{% endblock %}</h1>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_objetivos.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!--=============== TARJETAS ===================================================-->
+    
+    <div class="row" style="padding-top: 10px;padding-bottom: 10px;">
+        <div class="col-sm-2">
+            <div class="card_flex" style="display:block; text-align:center; background-color: rgb(180,223,195)">
+                <div  style="font-size: 20px; color: #666; font-weight:700">Cierre 2024</div>
+                <div style="height:10px"></div>
+                <div style="font-size: 10px;">Objetivo</div>
+                <div style="font-weight: 700; font-size: 25px">10 MM</div>
+                <div style="height:10px"></div>
+                <div style="width: 100%; display: flex; text-align:center;justify-content: center;">
+                    <i class="fas fa-flag-checkered icono"></i>
+                    <div>
+                        <div style="font-size: 10px;">Lunes 15 Diciembre</div>
+                        <div style="font-weight: 700; font-size: 20px;" >{{dias_cierre}} días</div>
+                    </div>
+                </div>   
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card_flex" style="display:block; padding:10px 20px">
+                <div class="barra" style="width: 100%; height: 12px; border-radius: 10px; background-color: rgb(227,227,227); color: white;">
+                    <div style="height: 100%; float: left; font-size: 12px;background-color: rgb(68,175,105); border-radius: 10px; background-color: rgb(68,175,105); width:{{porcentaje_mes_actual}}%; "></div>
+                </div>
+                <div class="trimestres">
+                    <div style="text-align:center" >
+                        <div style="padding-top: 15px; font-size:15px">1er Trimestre</div>
+                        <div style="font-size:50px; color: rgb(68,175,105);"><i class="fad fa-spinner"></i></div>
+                        <!--<div style="font-size:50px; color: rgb(68,175,105);"><i class="fad fa-check-circle"></i></div>-->
+                        <div style="font-size:12px">En Revisión</div>
+                    </div>
+                    <div style="text-align:center" >
+                        <div style="padding-top: 15px; font-size:15px">2do Trimestre</div>
+                        <div style="font-size:50px; color: rgb(68,175,105);"><i class="far fa-stopwatch"></i></div>
+                        <div style="font-size:12px">Pendiente</div>
+                    </div>
+                    <div style="text-align:center" >
+                        <div style="padding-top: 15px; font-size:15px">3er Trimestre</div>
+                        <div style="font-size:50px; color: rgb(68,175,105);"><i class="far fa-stopwatch"></i></div>
+                        <div style="font-size:12px">Pendiente</div>
+                    </div>
+                    <div style="text-align:center" >
+                        <div style="padding-top: 15px; font-size:15px">4to Trimestre</div>
+                        <div style="font-size:50px; color: rgb(68,175,105);"><i class="far fa-stopwatch"></i></div>
+                        <div style="font-size:12px">Pendiente</div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-sm">
+            <div class="card_flex" style="display:block; padding:10px 20px; text-align: center; ">
+                <div style="padding-bottom:10px; font-size: 20px; color: #666; font-weight:700">Avance</div>
+                <div style="float: center; position: relative;">
+                    <div style="width: 100%; position: absolute; top: 75%; left: 0; margin-top: 0px; text-align: center;">
+                        {{"%.0f"|format((revision|float + facturado|float)/10*100)}}%
+                    </div>
+                    <canvas id="avance" avance="{{(revision|float + facturado|float)/10*100}}" height="100%" width="100%"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm">
+            <div style="height:100%; display: flex; flex-flow: column; justify-content: space-between; row-gap: 10px;">
+                <div class="card_flex" style="height:100%">
+                    <div>
+                        <div class="number">{{facturado}} MM</div>
+                        <div class="card-name">Facturado</div>
+                    </div>
+                    <i class="fas fa-wallet icono"></i>
+                </div>
+                <div class="card_flex" style="height:100%">
+                    <div>
+                        <div class="number">{{revision}} MM</div>
+                        <div class="card-name">En Revisión</div>
+                    </div> 
+                    <i class="fad fa-spinner icono"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!--=============== GRAFICOS ===================================================-->
+    
+    <div class="row" style="padding-top: 10px;padding-bottom: 10px;">
+        <div class="col-sm-4">
+            <div class="chart">
+                <h2>Planificacion Oficial Trimestral</h2>
+                <br>
+                <canvas id="plan oficial" pago_ofi_trim="{{pago_ofi_trim}}"></canvas>
+                <br>
+                <div style="text-align:center; font-size:14px">Proyeccion de pago de {{proyeccion_pago}} MM<br>Sobrecumplimiento de {{sobrecumplimiento}}  MM</div>
+            </div>
+        </div>
+        
+        <div class="col-sm-6">
+            <div class="chart">
+                <h2>Planificacion Oficial Mensual</h2>
+                <br>
+                <canvas id="plan oficial mensual" height="120" pago_ofi_mens = "{{pago_ofi_mens}}"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="chart">
+                <h2>Cronograma</h2>
+                <h2 style="font-size:17px">{{mes_actual}}</h2>
+                
+                {% if 'Semana 1' in semanas %}
+                    <div style="background-color:rgb(227,227,227); font-size:13px; padding:5px"><strong>Semana 1</strong></div> 
+                    
+                        {% for i in cronograma_mes_actual %}
+                            {% if i['semana_pago_oficial'] == 'Semana 1' %}
+                                <div style="display: grid; grid-template-columns: 4fr 1fr; font-size: 11px; justify-items: left; align-items:center; padding:5px">
+                                    <div>{{ i['bautizo_corto'] }}</div>
+                                    <div>{{ "%.1f"|format(i['montoIGV']/1000000) }}</div>
+                                </div>
+                            {% endif %}    
+                        {% endfor %}
+                {% endif %}
+
+                {% if 'Semana 2' in semanas %}
+                <div style="background-color:rgb(227,227,227); font-size:13px; padding:5px"><strong>Semana 2</strong></div> 
+                    {% for i in cronograma_mes_actual %}
+                        {% if i['semana_pago_oficial'] == 'Semana 2' %}
+                            <div style="display: grid; grid-template-columns: 4fr 1fr; font-size: 11px; justify-items: left; align-items:center; padding:5px">
+                                <div>{{ i['bautizo_corto'] }}</div>
+                                <div>{{ "%.1f"|format(i['montoIGV']/1000000) }}</div>
+                            </div>
+                        {% endif %}    
+                    {% endfor %}
+                {% endif %}
+
+
+                {% if 'Semana 3' in semanas %}
+                <div style="background-color:rgb(227,227,227); font-size:13px; padding:5px"><strong>Semana 3</strong></div> 
+                    {% for i in cronograma_mes_actual %}
+                        {% if i['semana_pago_oficial'] == 'Semana 3' %}
+                            <div style="display: grid; grid-template-columns: 4fr 1fr; font-size: 11px; justify-items: left; align-items:center; padding:5px">
+                                <div>{{ i['bautizo_corto'] }}</div>
+                                <div>{{ "%.1f"|format(i['montoIGV']/1000000) }}</div>
+                            </div>
+                        {% endif %}    
+                    {% endfor %}
+                {% endif %}
+
+                {% if 'Semana 4' in semanas %}    
+                <div style="background-color:rgb(227,227,227); font-size:13px; padding:5px"><strong>Semana 4</strong></div> 
+                    {% for i in cronograma_mes_actual %}
+                        {% if i['semana_pago_oficial'] == 'Semana 3' %}
+                            <div style="display: grid; grid-template-columns: 4fr 1fr; font-size: 11px; justify-items: left; align-items:center; padding:5px">
+                                <div>{{ i['bautizo_corto'] }}</div>
+                                <div>{{ "%.1f"|format(i['montoIGV']/1000000) }}</div>
+                            </div>
+                        {% endif %}    
+                    {% endfor %}
+                {% endif %}
+
+                {% if 'Sin Fecha' in semanas or '' in semanas %}    
+                <div style="background-color:rgb(227,227,227); font-size:13px; padding:5px"><strong>Sin Fecha</strong></div> 
+                    {% for i in cronograma_mes_actual %}
+                        {% if i['semana_pago_oficial'] == 'Sin Fecha' or  i['semana_pago_oficial'] == '' %}
+                            <div style="display: grid; grid-template-columns: 4fr 1fr; font-size: 11px; justify-items: left; align-items:center; padding:5px">
+                                <div>{{ i['bautizo_corto'] }}</div>
+                                <div>{{ "%.1f"|format(i['montoIGV']/1000000) }}</div>
+                            </div>
+                        {% endif %}    
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+        </div> 
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="chart">
+                <h2>Detalle</h2>
+                <br>
+                <table class="table table-bordered table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Plan Oficial</th>
+                            <th>Semana Oficial</th>
+                            <th>Entidad</th>
+                            <th>Codigo Unico</th>
+                            <th>Item Madre</th>
+                            <th>Bautizo</th>
+                            <th>Estado</th>
+                            <th>Observaciones</th>
+                            <th>Plan Interno</th>
+                            <th>Semana Interno</th> 
+                            <th>Monto</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in meses_plan_pago %}
+                            
+                            <th rowspan="{{m['cant']+1}}">{{m['mes_pago_oficial']}}</th>
+                            {% for i in inf_plan_pago %}
+                                {% if i['mes_pago_oficial'] == m['mes_pago_oficial'] %}
+                                    <tr>
+                                        
+                                        <td style="white-space: nowrap;">{{ i['semana_pago_oficial'] }}</td>
+                                        <td style="white-space: nowrap;">{{ i['entidad'] }}</td>
+                                        <td style="white-space: nowrap;">{{ i['cod_unico'] }}</td>
+                                        <td style="white-space: nowrap;">{{ i['ip_madre'] }}</td>
+                                        <td style="white-space: nowrap;"> {{ i['bautizo'] }} </td>
+                                        <td style="white-space: nowrap;">{{ i['estado'] }}</td>
+                                        <td style="white-space: nowrap;">obs</td>
+                                        <td style="white-space: nowrap;">{{ i['mes_pago_planificado'] }}</td>
+                                        <td style="white-space: nowrap;">{{ i['semana_pago_interno'] }}</td>
+                                        <td style="white-space: nowrap;">S/.{{ "{:,.2f}".format(i['montoIGV']) }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            <tr>
+                                <th colspan="10">Total {{m['mes_pago_oficial']}}</th>
+                                <th>S/. {{"{:,.2f}".format(m['monto'])}}</th>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <th colspan="10">Total General</th>
+                            <th>S/. {{"{:,.2f}".format(suma_plan_pago[0][0])}}</th>
+                        </tr>
+                    </tbody>
+                    
+                    
+                </table>
+            </div>
+        </div>
+    </div>
+        
+     
+    <div class="row" style="padding-top: 10px;padding-bottom: 10px;">
+        <div class="col">
+            <div class="chart">
+                <h2>Planificacion Interno Trimestral</h2>
+                <br>
+                <canvas id="plan interno" pago_int_trim = "{{pago_int_trim}}"></canvas>
+                <div style="text-align:center; font-size:14px">{{ppto_emitido}} en Presupuesto Emitidos<br>2 meses antes de la fecha de ejecucion comunicada por la entidad</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="chart">
+                <h2>Planificacion Interno Mensual</h2>
+                <br>
+                <canvas id="plan interno mensual" pago_int_mens = "{{pago_int_mens}}"></canvas>
+            </div>
+        </div>
+
+    </div>
+        
+    
+{% endblock %}
+
+{% block scripts %}
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    
+
+    <script>
+        $( document ).ready(function() {
+        /*-----------Chart Speedometer,  Avance---------------------------*/
+        var avance = document.getElementById('avance').getAttribute('avance'); 
+        var ctx = document.getElementById('avance').getContext('2d');
+
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [ 'Avanzado', 'Pendiente'],
+                datasets: [{
+                    data: [avance,100-avance],
+                    backgroundColor: [
+                        'rgb(68,175,105)',
+                        'rgb(227,227,227)',
+                    ],
+                    borderColor: [
+                        'rgb(68,175,105)',
+                        'rgb(227,227,227)',            
+                    ],
+
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: 30,
+                rotation: -90,
+                circumference: 180,
+                
+                plugins: {
+                    legend: {
+                        display: false
+                    }},
+            }
+        
+        });
+
+    /*-----------Chart Bar,  Plan Interno Trimestral---------------------------*/
+    var pago_int_trim = JSON.parse(document.getElementById('plan interno').getAttribute('pago_int_trim')); 
+    
+    var ctx2 = document.getElementById('plan interno').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['1Q', '2Q', '3Q', '4Q','Sin fecha','Anillo Vial'],
+
+            datasets: [{
+                label: 'Proyeccion de Pago Interna',
+                data: pago_int_trim,
+                backgroundColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'], /*rgb(180,223,195,1)*/
+                borderColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderWidth: 1,
+                order:2
+            }]
+
+        },
+        options: {
+            responsive: true,
+            scaleShowVerticalLines: false,
+            indexAxis: 'y',
+            scales:{
+                y:{
+                    grid:{drawOnChartArea: false}
+                }
+            },
+            plugins:{
+                legend: {
+                    display: false
+                },
+                datalabels:{
+                    color:'grey',
+                    align: 'end',
+                    anchor: 'end',
+                    offset: 4,
+                    formatter: function(value, context) {
+                        if(value >0 && value <1){
+                            return value*1000 + ' K';
+                        }else if(value >0){
+                            return value + ' MM';
+                            
+                        }else{
+                            return '';
+                        }
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    /*-----------Chart Bar,  Plan Oficial Trimestral---------------------------*/
+    var pago_ofi_trim = JSON.parse(document.getElementById('plan oficial').getAttribute('pago_ofi_trim'));
+    max_x_axis = Math.max.apply(null, pago_ofi_trim) +0.5;
+    var ctx2 = document.getElementById('plan oficial').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['1Q', '2Q', '3Q', '4Q'],
+
+            datasets: [{
+                label: 'Proyeccion de pago de 16.4 MM',
+                data: pago_ofi_trim,
+                backgroundColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderWidth: 1,
+                order:2
+            }]
+
+        },
+        options: {
+            
+            responsive: true,
+            scaleShowVerticalLines: false,
+            indexAxis: 'y',
+            scales:{
+                y:{
+                    grid:{drawOnChartArea: false}
+                },
+                x:{
+                    max: max_x_axis
+                }
+                
+            },
+            plugins:{
+                legend: {
+                    display: false
+                },
+                datalabels:{
+                    color:'grey',
+                    align: 'end',
+                    anchor: 'end',
+                    offset: 4,
+                    formatter: function(value, context) {
+                        if(value >0 && value <1){
+                            return value*1000 + ' K';
+                        }else if(value >0){
+                            return value + ' MM';
+                            
+                        }else{
+                            return '';
+                        }
+                        
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    /*-----------Chart Bar,  Plan Oficial Mensual---------------------------*/
+    var pago_ofi_mens = JSON.parse(document.getElementById('plan oficial mensual').getAttribute('pago_ofi_mens'));
+
+    var ctx2 = document.getElementById('plan oficial mensual').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'],
+
+            datasets: [{
+                label: 'Proyeccion de pago',
+                data: pago_ofi_mens,
+                backgroundColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderWidth: 1,
+                order:2
+            }]
+
+        },
+        options: {
+            responsive: true,
+            
+            scaleShowVerticalLines: false,
+            scales:{
+                
+                x:{
+                    grid:{drawOnChartArea: false}
+                }
+            },
+            plugins:{
+                legend: {
+                    display: false
+                },
+                datalabels:{
+                    color:'grey',
+                    maintainAspectRatio: false,
+                    align: 'top',
+                    anchor: 'end',
+                    offset: 4,
+                    formatter: function(value, context) {
+                        if(value >0 && value <1){
+                            return value*1000 + ' K';
+                        }else if(value >0){
+                            return value + ' MM';
+                            
+                        }else{
+                            return '';
+                        }
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+    
+    /*-----------Chart Bar,  Plan Interno Mensual---------------------------*/
+    var pago_int_mens = JSON.parse(document.getElementById('plan interno mensual').getAttribute('pago_int_mens')); 
+    var ctx2 = document.getElementById('plan interno mensual').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic','Sin Fecha'],
+
+            datasets: [{
+                label: 'Proyeccion de pago',
+                data: pago_int_mens,
+                backgroundColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                borderWidth: 1,
+                order:2
+            }]
+        },
+        options: {
+            responsive: true,
+            
+            scaleShowVerticalLines: false,
+            scales:{
+                x:{
+                    grid:{drawOnChartArea: false}
+                }
+            },
+            plugins:{
+                legend: {
+                    display: false
+                },
+                datalabels:{
+                    color:'grey',
+                    maintainAspectRatio: false,
+                    align: 'top',
+                    anchor: 'end',
+                    offset: 4,
+                    formatter: function(value, context) {
+                        if(value >0 && value <1){
+                            return value*1000 + ' K';
+                        }else if(value >0){
+                            return value + ' MM';
+                            
+                        }else{
+                            return '';
+                        }
+                        
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+
+
+        function theFunction() {
+          año = document.getElementById("año").innerHTML;
+          if (año == "2024") {
+            document.getElementById("año").textContent = "2023";
+          } else {
+            document.getElementById("año").textContent = "2024";
+          }
+        }
+    });
+    </script>
+
+{% endblock %}

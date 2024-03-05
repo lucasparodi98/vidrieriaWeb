@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Desestimados 2024 [FALTA IMPLEMENTAR]{% endblock %}</h1>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_objetivos.css') }}">
+{% endblock %}
+
+{% block content %}  
+            
+            <!--=============== TARJETAS ===================================================-->
+                
+                <div class="CD_cards">
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">{{desestimados|length}}</div>
+                            <div class="card-name">PPTOs Desestimados</div>
+                        </div>
+                        
+                        <i class="fas fa-minus-circle icono"></i>
+                    </div>
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">5 MM</div>
+                            <div class="card-name">Pagado en Diseño</div>
+                        </div> 
+                        
+                        <i class="fas fa-donate icono"></i>
+                        
+                    </div>
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">0.5 MM</div>
+                            <div class="card-name">Cobrado a la entidad</div>
+                        </div> 
+                        
+                        <i class="fas fa-hand-holding-usd icono"></i>
+                        
+                    </div>
+                    
+                    <div class="card_flex" style="background-color: rgb(180,223,195)">
+                        <div>
+                            <div class="number">1.5 MM</div>
+                            <div class="card-name" style="color: #299b63;">Pendiente de Cobro</div>
+                        </div>
+                        
+                        <i class="fad fa-spinner icono"></i>
+                    </div>
+                    
+                </div>
+                
+                <div class="CD_charts" style="grid-template-columns: 1fr 2fr;">
+                    <div class="chart" >
+                        <h2>Motivo de Desestimación</h2>
+                        <br>
+                        <canvas id="OC_generadas" cant_estados="{{cant_estados}}" estados_str="{{estados_str}}" monto_estados="{{monto_estados}}"></canvas>
+                                                
+                    </div>
+                    <div class="chart" style="overflow-x:auto">
+                        <h2>Detalle</h2>
+                        <br>
+                        <table class="table table-bordered table-sm table-hover" >
+                            <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                            <tr>
+                            <th>ESTADO</th>
+                            <th>IP MADRE/IP</th>
+                            <th>DESCRIPCIÓN ENTIDAD</th>
+                            <th>BAUTIZO</th>
+                            <th>MOTIVO</th>
+                            <th>CANT PROY</th>
+                            <th>COSTO DISEÑO</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in desestimados %}
+                                <tr>
+                                <td></td>
+                                <td>{{i['ip_madre']}}</td>
+                                <td>{{i['entidad']}}</td>
+                                <td idth="20px">{{i['bautizo']}}</td>
+                                <td>{{i['estado']}}</td>
+                                <td>1</td>
+                                <td>9</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            </table>
+                        
+                        
+                    </div>
+                    
+                </div>
+            
+                    
+                
+            
+                
+             
+    {% endblock %}
+
+    {% block scripts %}     
+                
+
+    
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <script>
+        $( document ).ready(function() {
+
+        const legendMargin = {
+            id: 'legendMargin',
+            beforeInit(chart,legend,options){
+                console.log(chart.legend.fit)
+                const fitValue = chart.legend.fit;
+
+                chart.legend.fit = function fit(){
+                    fitValue.bind(chart.legend)();
+                    return this.height += 20; 
+                }
+            }
+
+        };
+
+        var cant_estados= JSON.parse(document.getElementById('OC_generadas').getAttribute('cant_estados')); 
+        var monto_estados= JSON.parse(document.getElementById('OC_generadas').getAttribute('monto_estados')); 
+        var estados_str= document.getElementById('OC_generadas').getAttribute('estados_str').split(",");    
+
+        
+        var ctx2 = document.getElementById('OC_generadas').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: estados_str,
+
+                datasets: [{
+                    label: 'Proyeccion de pago',
+                    data: cant_estados,
+                    backgroundColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+
+
+                    ],
+                    borderColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                
+                    ],borderWidth: 1,
+                    order:2
+                }]
+
+            },
+            options: {
+                responsive: true,
+                               
+                plugins:{
+                    legend: {
+                        
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 6
+                            }
+                    },
+                    datalabels:{
+                        color:'grey',
+                        maintainAspectRatio: false,
+                        align: 'top',
+                        anchor: 'end',
+                        formatter: function(value, context) {
+                            if(value >0 && value <1){
+                                return value*1000 + ' K';
+                            }else if(value >0){
+                                return value + ' MM';
+                                
+                            }else{
+                                return '';
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels, legendMargin]
+        });
+
+
+        
+
+     });
+
+        function theFunction() {
+          año = document.getElementById("año").innerHTML;
+          if (año == "2024") {
+            document.getElementById("año").textContent = "2023";
+          } else {
+            document.getElementById("año").textContent = "2024";
+          }
+        }
+    </script>
+
+{% endblock %}

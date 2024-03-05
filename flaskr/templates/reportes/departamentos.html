@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Reporte Departamentos{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {{ iframe | safe }}
+{% endblock %}

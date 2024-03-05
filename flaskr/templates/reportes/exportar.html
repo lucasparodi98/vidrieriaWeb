@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Exportar{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <style>
+      .auto-grid {
+        --auto-grid-min-size: 15rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+        grid-gap: 1rem;
+        
+      }
+
+      /* Presentational styles */
+
+      body {
+        
+        line-height: 1.4;
+        font-family: sans-serif;
+      }
+
+      li {
+        padding: 5rem 1rem;
+        text-align: center;
+        font-size: 1.2rem;
+        background: #eb4d4b;
+        color: #ffffff;
+        list-style-type: none;
+      }
+
+      .boton{
+        padding: 5rem 1rem !important;
+      }
+
+      .btn-primary:hover{
+        background-color: #ffffff;
+        color: #0275d8;
+      }
+
+      ul{
+        padding-left:0px;
+      }
+
+      
+    </style>  
+    <br>
+    <ul class="auto-grid">
+      <button type="button" class="boton btn btn-primary btn-lg align-bottom " onclick="download_inf_red()">Información de Red</button>
+      <button type="button" class="boton btn btn-primary btn-lg align-bottom " onclick="download_presupuestos()">Presupuestos</button>
+      <button type="button" class="boton btn btn-primary btn-lg align-bottom " onclick="download_convenios()">Convenios</button>
+      <button type="button" class="boton btn btn-primary btn-lg align-bottom " onclick="download_info_webpo()">Datos WebPo</button>
+  
+    </ul>
+
+
+
+    <script>
+      
+      function download_inf_red() {
+        location.replace('/download_inf_red');
+      }
+
+      function download_presupuestos() {
+        location.replace('/download_presupuestos');
+      }
+
+      function download_convenios() {
+        location.replace('/download_convenios');
+      }
+
+      function download_info_webpo() {
+        location.replace('/download_info_webpo');
+      }
+
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Proyectos Gestionados 2024 [FALTA IMPLEMENTAR]{% endblock %}</h1>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_proyectos_gestionados_2024.css') }}">
+{% endblock %}
+
+{% block content %}
+    
+
+            <div class="charts">
+                <div class="chart">
+                    <h2>Vista por General por Etapas</h2>
+                    <br>
+                    <table class="table table-bordered table-sm table-hover">
+                        <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                          <tr>
+                            <th width="150px">GRUPO GESTION</th>
+                             <th>ESTADO</th>
+                             <th width="20px">CANT. PROY</th>
+                             <th width="30px">MONTO<br>(SIN I.G.V.)</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                          {% for etapa in vista_general_grupos %}
+                            <th rowspan="{{etapa['cant']+1}}">{{etapa['grupo_gestion']}}</th>
+                            {% for i in vista_general %}
+                              {% if i['grupo_gestion']== etapa['grupo_gestion'] %}
+                                <tr>
+                                  <td>{{i['estado']}}</td>
+                                  <td>{{i['proy']}}</td>
+                                  <td>S/. {{ "{:,.2f}".format(i['montoIGV']) }}</td>
+                                </tr>
+                              {% endif %}
+                            {% endfor %}
+                            <tr>
+                              <th colspan="2">Total {{etapa['grupo_gestion']}}</th>
+                              <th>{{etapa['proy']}}</th>
+                              <th>S/. {{ "{:,.2f}".format(etapa['montoIGV'])}}</th>
+                            </tr>
+                            
+                          
+                          
+                        {% endfor %}
+                        <tr>
+                          <th colspan="2">Total General</th>
+                          <th>hola</th>
+                          <th>22</th>
+                        </tr>
+                        </tbody>
+                        
+                        
+                        
+                       </table>
+                </div>
+
+                <div class="chart">
+                    <h2>Importante</h2>
+                    <br>
+                    <ul>
+                        
+                      {% if importante['sin_oc_10_dias']>0 %}<li class="observaciones">Tenemos {{importante['sin_oc_10_dias']}} proyectos sin solicitud de OC con más de 10 días desde que se creó el IP Madre</li>{% endif %}
+                      {% if importante['diseño_30_dias']>0 %}<li class="observaciones">Tenemos {{importante['diseño_30_dias']}} proyectos con más de 30 días en <strong>diseño</strong></li>{% endif %}
+                      {% if importante['ppto_4_dias']>0 %}<li class="observaciones">Tenemos {{importante['ppto_4_dias']}} proyectos en <strong>elaboracion de ppto</strong> con más de 4 días desde que se terminó el diseño</li>{% endif %}
+                      {% if importante['sf_pago_3_meses']>0 %}<li class="observaciones">Tenemos {{importante['sf_pago_3_meses']}} proyectos en <strong>coordinacion</strong> con la entidad sin confirmacion de fecha de pago con más de 3 meses desde que se envió el presupuesto</li>{% endif %}
+                           
+                    </ul>
+                    
+                    <h2>Ultimos Movimientos</h2>
+                    <br>
+                    <ul>
+                        {% for i in observaciones%}
+                        <li class="observaciones"><strong style="font-size:13px">{{i['fecha'].strftime('%d-%m-%y')}} {{i['bautizo']}}: </strong>{{i['observacion']| safe}}</li>
+                        {% endfor %}
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="charts2">
+                <div class="chart">
+                    <h2>Detalle</h2>
+                    <br>
+                    <div class="panel-group" id="accordion">
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Proyectos con IP Madre Creado sin OC</a>
+                          </h4>
+                        </div>
+                        <div id="collapse1" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                              
+
+                              
+                                <table class="table table-bordered table-sm table-hover">
+                                  <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                    <tr>
+                                      <th >DESCRIPCIÓN ENTIDAD</th>
+                                      <th>CÓDIGO UNICO</th>
+                                      <th>IP MADRE/IP</th>
+                                      <th>BAUTIZO</th>
+                                      <th>WEB PO</th>
+                                      <th >SOLICITUD OC</th>
+                                      <th >CANT PROY</th>
+                                      <th >DÍAS TRANSC.</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+
+                                    {% for i in con_ip_sin_oc %}
+                                            
+                                      <tr>
+                                        <td>{{i['nombre_entidad']}}</td>
+                                        <td>{{i['cod_unico']}}</td>
+                                        <td>{{i['ip_madre']}}</td>
+                                        <td>{{i['bautizo']}}</td>
+                                        <td>{{i['estado_ipmadre_webPO']}}</td>
+                                        <td>{{i['solicitudOC']}}</td>
+                                        <td>{{i['proy']}}</td>
+                                        <td>{{i['dias_transc']}}</td>
+                                      </tr>
+                                      
+                                    {% endfor %}
+                                  </tbody>  
+                                    
+                                          
+            
+                                </table>
+                              
+                            </div>
+                        </div>
+                      </div>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse2">Proyectos en Proceso de Diseño con OC Creada</a>
+                          </h4>
+                        </div>
+                        <div id="collapse2" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                            
+                            <table class="table table-bordered table-sm table-hover">
+                                
+                              <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                <tr>
+                                  <th >DESCRIPCIÓN ENTIDAD</th>
+                                  <th>CÓDIGO UNICO</th>
+                                  <th>IP MADRE/IP</th>
+                                  <th>BAUTIZO</th>
+                                  <th>WEB PO</th>
+                                  <th >ESTADO</th>
+                                  <th >CANT PROY</th>
+                                  <th>DÍAS TRANSC.</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+
+                                {% for i in en_diseño %}
+                                        
+                                  <tr>
+                                    <td>{{i['nombre_entidad']}}</td>
+                                    <td>{{i['cod_unico']}}</td>
+                                    <td>{{i['ip_madre']}}</td>
+                                    <td>{{i['bautizo']}}</td>
+                                    <td>{{i['estado_ipmadre_webPO']}}</td>
+                                    <td>{{i['estado']}}</td>
+                                    <td>{{i['proy']}}</td>
+                                    <td>{{i['dias_transc']}}</td>
+                                    
+                                    
+                                    
+                                  </tr>
+                                  
+                                {% endfor %}
+                              </tbody>                             
+                                     
+                          </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse3">Proyectos con Diseño Terminado Pendiente de Elaboracion de Presupuesto</a>
+                          </h4>
+                        </div>
+                        <div id="collapse3" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                            <table class="table table-bordered table-sm table-hover">
+                                
+                                <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                  <tr>
+                                    
+                                    <th>CÓDIGO UNICO</th>
+                                    <th>IP MADRE</th>
+                                    <th>EECC</th>
+                                    <th >DESCRIPCIÓN ENTIDAD</th>
+                                    <th>BAUTIZO</th>
+                                    <th>ESTADO</th>
+                                    <th>COSTO DE DISEÑO</th>                                 
+                                    <th >CANT PROY</th>
+                                    <th >DÍAS TRANSC.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                  {% for i in en_ppto %}
+                                          
+                                    <tr>
+                                      <td>{{i['cod_unico']}}</td>
+                                      <td>{{i['ip_madre']}}</td>
+                                      <td>{{i['eecc']}}</td>
+                                      <td>{{i['nombre_entidad']}}</td>                                                                           
+                                      <td>{{i['bautizo']}}</td>
+                                      <td>{{i['estado']}}</td>
+                                      <td>costo</td>
+                                      <td>{{i['proy']}}</td>
+                                      <td>{{"{:,.0f}".format(i['dias_transc'])}}</td>
+                                      
+                                      
+                                    </tr>
+                                    
+                                  {% endfor %}
+                                </tbody>                             
+                                       
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse4">Proyectos En Coordinacion (Plan Interno)</a>
+                          </h4>
+                        </div>
+                        <div id="collapse4" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                            <table class="table table-bordered table-sm table-hover">
+                              <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                <tr>
+                                <th>TRIMESTRE</th>
+                                 <th>MES PAGO</th>
+                                 <th>ESTADO</th>
+                                 <th>BAUTIZO</th>                                 
+                                 <th>ENTIDAD</th>
+                                 <th>CODIGO UNICO</th>
+                                 <th>IP MADRE</th>
+                                 <th >DÍAS TRANSC.</th>
+                                 <th width="30px">MONTO<br>(SIN I.G.V.)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                {% for i in plan_oficial_interno %}
+                                <tr>
+                                  <td>trim</td>
+                                  <td>{{i['mes_pago_planificado']}}</td>
+                                  <td>{{i['estado']}}</td>
+                                  <td>{{i['bautizo']}}</td>
+                                  <td>{{i['entidad']}}</td>
+                                  <td>{{i['cod_unico']}}</td>
+                                  <td>{{i['ip_madre']}}</td>
+                                  <td>{{"{:,.0f}".format(i['dias_transc'])}}</td>
+                                  
+                                  
+                                  <td width="30px">{{i['montoIGV']}}</td>
+                                </tr>
+                                {% endfor%}
+
+                              </tbody>
+
+
+
+        
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse5">Plan Oficial</a>
+                          </h4>
+                        </div>
+                        <div id="collapse5" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                            <table class="table table-bordered table-sm table-hover">
+                              <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                <tr>
+                                <th>TRIMESTRE</th>
+                                 <th>MES PAGO</th>
+                                 <th>ESTADO</th>
+                                 <th>BAUTIZO</th>                                 
+                                 <th>ENTIDAD</th>
+                                 <th>CODIGO UNICO</th>
+                                 <th>IP MADRE</th>
+                                 <th >DÍAS TRANSC.</th>
+                                 <th width="30px">MONTO<br>(SIN I.G.V.)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                {% for i in plan_oficial_interno %}
+                                <tr>
+                                  <td>trim</td>
+                                  <td>{{i['mes_pago_oficial']}}</td>
+                                  <td>{{i['estado']}}</td>
+                                  <td>{{i['bautizo']}}</td>
+                                  <td>{{i['entidad']}}</td>
+                                  <td>{{i['cod_unico']}}</td>
+                                  <td>{{i['ip_madre']}}</td>
+                                  <td>{{"{:,.0f}".format(i['dias_transc'])}}</td>
+                                  
+                                  <td width="30px">{{i['montoIGV']}}</td>
+                                </tr>
+                                {% endfor%}
+
+                              </tbody>
+
+
+
+        
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse6">Facturado</a>
+                          </h4>
+                        </div>
+                        <div id="collapse6" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                        
+                              <table class="table table-bordered table-sm table-hover">
+                                
+                                <thead class="table-primary text-center align-middle" style="font-size: 0.90em;">
+                                  <tr>
+                                    <th>ESTADO</th>
+                                    <th width="150px">DESCRIPCIÓN ENTIDAD</th>
+                                    <th>BAUTIZO</th>
+                                    <th>CÓDIGO UNICO</th>
+                                    <th>IP MADRE</th>
+                                    <th>MONTO</th>                                 
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                  {% for i in facturado %}
+                                          
+                                    <tr>
+                                      <td>{{i['estado']}}</td>
+                                      <td>{{i['nombre_entidad']}}</td> 
+                                      <td>{{i['bautizo']}}</td>
+                                      <td>{{i['cod_unico']}}</td>
+                                      <td>{{i['ip_madre']}}</td>
+                                      <td>{{i['montoIGV']}}</td>                                   
+                                      
+                                    </tr>
+                                    
+                                  {% endfor %}
+                                </tbody>                             
+                                       
+                            </table>
+                                
+        
+
+        
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div> 
+                </div>
+                    
+                  
+            </div>
+            
+
+    {% endblock %}
+
+    {% block scripts %}        
+            
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>   
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function theFunction() {
+          año = document.getElementById("año").innerHTML;
+          if (año == "2024") {
+            document.getElementById("año").textContent = "2023";
+          } else {
+            document.getElementById("año").textContent = "2024";
+          }
+        }
+    </script>
+
+{% endblock %}

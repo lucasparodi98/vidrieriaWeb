@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Mapa - Obras Públicas{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post" enctype="multipart/form-data" name="form1">
+    <div id="accordion">
+      <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <a class="collapsed card-link link-secondary" data-bs-toggle="collapse" href="#collapseOne" style="text-decoration:none;">
+                <h5><b>Filtrar Proyectos</b></h5>
+            </a>
+          </div>
+          <div id="collapseOne" class="collapse show" data-parent="#accordion">
+            <div class="card-body">
+              <input class="btn btn-primary" type="submit" value="Filtrar">
+              <div class="row">
+                <div class="col-sm border-end">
+                  <select id="year_post" name="year_post" class="form-select" size="10" multiple>
+                    {% for year in years %}
+                      {% if year[1] == 1 %}
+                        <option selected>{{ year[0] }}</option>
+                      {% else %}
+                        <option >{{ year[0] }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-sm border-end">
+                  <select id="departamento_post" name="departamento_post" class="form-select" size="10" multiple>
+                    {% for departamento in departamentos %}
+                      {% if departamento[1] == 1 %}
+                        <option selected>{{ departamento[0] }}</option>
+                      {% else %}
+                        <option >{{ departamento[0] }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-sm">
+                  <select id="estado_post" name="estado_post" class="form-select" size="10" multiple>
+                    {% for estado in estadosOP %}
+                      {% if estado[1] == 1 %}
+                        <option selected>{{ estado[0] }}</option>
+                      {% else %}
+                        <option >{{ estado[0] }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    
+  </form>
+  <hr>
+  <div class="row">
+    <div class="col-sm-10">
+      {{ iframe|safe }}
+    </div>
+    <div class="col-sm-2">
+      <h4><b>Leyenda</b></h4>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #80D8FF;"></div>&nbsp En proceso de Información de Red</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #255684;"></div>&nbsp Información de Red enviado a Entidad</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #7f6fbd;"></div>&nbsp Generar IP Madre</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #b87e40;"></div>&nbsp Pendiente OC de Diseño</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #9B870D;"></div>&nbsp En proceso de Diseño</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #7851A9;"></div>&nbsp En proceso de Presupuesto</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #006400;"></div>&nbsp En proceso de Convenio</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #40b878;"></div>&nbsp En proceso de Pago</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #2acc1f;"></div>&nbsp Pagado por Entidad</div>
+      <br>
+      <div style="font-size: small;line-height: 20px;"><div class="box" style="background-color: #FF0000;"></div>&nbsp Cancelado/Desestimado</div>
+    </div>
+  </div>
+  
+{% endblock %}
+
+{% block script %}
+<script>
+  $( document ).ready(function() {
+    $('option').mousedown(function(e) {
+      e.preventDefault();
+      var originalScrollTop = $(this).parent().scrollTop();
+      console.log(originalScrollTop);
+      $(this).prop('selected', $(this).prop('selected') ? false : true);
+      var self = this;
+      $(this).parent().focus();
+      setTimeout(function() {
+          $(self).parent().scrollTop(originalScrollTop);
+      }, 0);
+      
+      return false;
+    });
+  });
+</script>
+{% endblock %}

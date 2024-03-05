@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Gestion Presupuestal 2024 [FALTA IMPLEMENTAR]{% endblock %}</h1>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_objetivos.css') }}">
+{% endblock %}
+
+{% block content %}  
+            
+            <!--=============== TARJETAS ===================================================-->
+            
+                <div class="CD_cards">
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">{{certificado}}</div>
+                            <div class="card-name">Certificado</div>
+                        </div>
+                        
+                        <i class="fas fa-check-circle icono"></i>
+                    </div>
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">{{en_certificacion}}</div>
+                            <div class="card-name">En Certificación</div>
+                        </div> 
+                        
+                        <i class="fad fa-spinner icono"></i>
+                        
+                    </div>
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">{{oc_creadas}}</div>
+                            <div class="card-name">OC Creadas</div>
+                        </div> 
+                        
+                        <i class="far fa-clipboard icono"></i>
+                        
+                    </div>
+                    
+                    <div class="card_flex" style="background-color: rgb(180,223,195)">
+                        <div>
+                            <div class="number">{{ppto_habilitado}}</div>
+                            <div class="card-name" style="color: #299b63;">Presupuesto Habilitado</div>
+                        </div>
+                        
+                        <i class="fas fa-hand-holding-usd icono"></i>
+                    </div>
+
+                    <div class="card_flex">
+                        <div>
+                            <div class="number">{{con_solicitud_oc}}</div>
+                            <div class="card-name">Con Solicitud de OC</div>
+                        </div> 
+                        
+                        <i class="fas fa-ticket-alt icono"></i>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="CD_charts">
+                    <div class="chart">
+                        <h2>Certificacion 2024</h2>
+                        <br>
+                        <canvas id="CD2" cant_cert="{{cant_cert}}", monto_ini_cert="{{monto_ini_cert}}", monto_fin_cert="{{monto_fin_cert}}", monto_prom_cert="{{monto_prom_cert}}"></canvas>
+                        <br>
+                        <div style="text-align:center; font-size:14px"><strong>Costo Promedio de Diseño de las OC Certificadas en 2024: S/. {{prom_certificacion}}</strong></div>
+                        <br>
+                        <div style="text-align:center; font-size:14px"><strong>OC Certificadas con PEP 2023: S/.{{"{:,.2f}".format(certificado_por_pep[0][1])}}</strong></div>
+                        <div style="text-align:center; font-size:14px"><strong>OC Certificadas con PEP 2024: S/.{{"{:,.2f}".format(certificado_por_pep[1][1])}}</strong></div>
+                    </div>
+                    <div class="chart">
+                        <h2>OC Generadas con PEP 2024</h2>
+                        <br>
+                        <canvas id="OC_generadas" oc_generadas_dic="{{oc_generadas_dic}}"></canvas>
+                        <br>
+                        <div style="text-align:center; font-size:14px"><strong>Total OC Generadas con PEP 2024: S/.{{total_generadas}}</strong></div>
+                    </div>
+                </div>
+                 
+            <!--=============== GRAFICOS ===================================================-->
+            {% for i in oc_generadas_por_estado %}
+                {% for x in i %}
+                    {{x}}
+                {% endfor %}
+                <br>
+            {% endfor %}
+            <div class="fila3">
+                <div class="chart">
+                    <h2>Comprometido </h2>
+                    <br>
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h4 class="panel-title">
+                              <a data-toggle="collapse" href="#collapse1">En Certificación</a>
+                            </h4>
+                          </div>
+                          <div id="collapse1" class="panel-collapse collapse in">
+                              <div class="panel-body">
+                                  <table class="table table-bordered table-sm table-hover">
+
+                                      <tr>
+                                      <th>FECHA DE SOLICITUD OC CERTIFICACION</th> 
+                                      <th>IP MADRE</th>
+                                      <th>DESCRIPCIÓN ENTIDAD</th>                                      
+                                      <th>BAUTIZO</th>
+                                      <th>MONTO INICIAL</th>
+                                      <th>MONTO FINAL</th>
+                                      </tr>
+                                      
+                                      {% set total_ini = namespace(value=0) %}
+                                      {% set total_fin = namespace(value=0) %}
+                                      {% for i in en_certificacion_detalle %}
+                                        <tr>
+                                        <td>{{i['solicitud_oc_actual']}}</td>
+                                        <td>{{i['ip_madre']}}</td>
+                                        <td>{{i['entidad']}}</td>                                        
+                                        <td>{{i['bautizo']}}</td>
+                                        <td>S/. {{"{:,.2f}".format(i['monto_inicial'])}}</td>
+                                        <td>S/. {{"{:,.2f}".format(i['monto_diseño_final'])}}</td>
+                                        {% set total_ini.value = total_ini.value + i['monto_inicial']%}
+                                        {% set total_fin.value = total_fin.value + i['monto_diseño_final']%}
+                                        </tr>
+                                      {% endfor %}
+                                      <tr>
+                                        <th colspan="4">Total </th>
+                                        <th>S/. {{"{:,.2f}".format(total_ini.value)}}</th>
+                                        <th>S/. {{"{:,.2f}".format(total_fin.value)}}</th>
+                                    </tr>
+              
+                                  </table>
+                              
+                              </div>
+                          </div>
+                        </div>
+                        
+                        <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h4 class="panel-title">
+                              <a data-toggle="collapse" href="#collapse3">En Validación</a>
+                            </h4>
+                          </div>
+                          <div id="collapse3" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                              <table class="table table-bordered table-sm table-hover">
+                                  
+                                    <tr>
+                                    <th>RESPONSABLE</th> 
+                                    <th>EECC</th>
+                                    <th>IP MADRE</th>                                                                        
+                                    <th>BAUTIZO</th>
+                                    <th>MONTO INICIAL</th>
+                                    <th>MONTO FINAL</th>
+                                    </tr>
+
+                                    {% set total_ini = namespace(value=0) %}
+                                    {% set total_fin = namespace(value=0) %}
+                                    {% for i in en_validacion_detalle %}
+                                      <tr>
+                                      <td>{{i['estado_firma']}}</td>
+                                      <td>{{i['eecc']}}</td>
+                                      <td>{{i['ip_madre']}}</td>                                      
+                                      <td>{{i['bautizo']}}</td>
+                                      <td>S/. {{"{:,.2f}".format(i['monto_inicial'])}}</td>
+                                      <td>S/. {{"{:,.2f}".format(i['monto_diseño_final'])}}</td>
+                                      {% set total_ini.value = total_ini.value + i['monto_inicial']%}
+                                      {% set total_fin.value = total_fin.value + i['monto_diseño_final']%}
+                                    </tr>
+                                      
+                                      
+                                    {% endfor %}
+                                  
+                                    <tr>
+                                        <th colspan="4">Total </th>
+                                        <th>S/. {{"{:,.2f}".format(total_ini.value)}}</th>
+                                        <th>S/. {{"{:,.2f}".format(total_fin.value)}}</th>
+                                    </tr>
+                                  
+          
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h4 class="panel-title">
+                              <a data-toggle="collapse" href="#collapse4">Pendiente de Certificar</a>
+                            </h4>
+                          </div>
+                          <div id="collapse4" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <table class="table table-bordered table-sm table-hover">
+                                  
+                                    <tr>
+                                    <th>ESTADO IP</th> 
+                                    <th>EECC</th>
+                                    <th>IP MADRE</th>                                                                        
+                                    <th>BAUTIZO</th>
+                                    <th>ESTADO CAMPO</th>
+                                    <th>FECHA CREACION OC</th>
+                                    <th>MONTO INICIAL</th>
+                                    <th>MONTO FINAL</th>
+                                    
+                                    </tr>
+                                    {% set total_ini = namespace(value=0) %}
+                                    {% set total_fin = namespace(value=0) %}
+                                    {% for i in pend_certificar_detalle %}
+                                      <tr>
+                                      <td>{{i['estado_ip']}}</td>
+                                      <td>{{i['eecc']}}</td>
+                                      <td>{{i['ip_madre']}}</td>                                      
+                                      <td>{{i['bautizo']}}</td>
+                                      <td>{{i['estado']}}</td>
+                                      <td>{{i['solicitud_oc_creacion']}}</td>
+                                      <td>S/. {{"{:,.2f}".format(i['monto_inicial'])}}</td>
+                                      <td>S/. {{"{:,.2f}".format(i['monto_diseño_final'])}}</td>
+                                      {% set total_ini.value = total_ini.value + i['monto_inicial']%}
+                                      {% set total_fin.value = total_fin.value + i['monto_diseño_final']%}
+                                      </tr>
+                                    {% endfor %}
+                                      
+                                    <tr>
+                                        <th colspan="6">Total </th>
+                                        <th>S/. {{"{:,.2f}".format(total_ini.value)}}</th>
+                                        <th>S/. {{"{:,.2f}".format(total_fin.value)}}</th>
+                                    </tr>
+          
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        
+  
+                        <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h4 class="panel-title">
+                              <a data-toggle="collapse" href="#collapse6">Con Solicitud de OC</a>
+                            </h4>
+                          </div>
+                          <div id="collapse6" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                              <table class="table table-bordered table-sm table-hover">
+                          
+                                <tr>
+                                    <th>ESTADO IP</th> 
+                                    <th>IP MADRE</th>                                                                        
+                                    <th>BAUTIZO</th>
+                                    <th>MONTO</th>
+
+                                    </tr>
+                                    {% set total_sol_OC = namespace(value=0) %}
+                                    {% for i in con_solicitud_oc_detalle %}
+                                      <tr>
+                                      <td>{{i['estado_ip']}}</td>
+                                      <td>{{i['ip_madre']}}</td>                                      
+                                      <td>{{i['bautizo']}}</td>
+                                      <td>S/. {{"{:,.2f}".format(i['monto_actual'])}}</td>
+                                      {% set total_sol_OC.value = total_sol_OC.value + i['monto_actual']%}
+                                      </tr>
+                                    {% endfor %}
+                                  
+                                    <tr>
+                                        <th colspan="3">Total </th>
+                                        <th>S/. {{"{:,.2f}".format(total_sol_OC.value)}}</th>
+                                    </tr>
+  
+          
+                              </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+                
+             
+    {% endblock %}
+
+    {% block scripts %}     
+                
+    
+    
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <script>
+        $( document ).ready(function() {
+        
+
+
+
+        /*-----------Chart Vertical Bars Group,  OC Generadas---------------------------*/
+        const topLabels = {
+            id: 'topLabels',
+            afterDatasetsDraw(chart, args, pluginOptions){
+                const { ctx,scales:{x,y} } = chart;
+
+                chart.data.datasets[0].data.forEach((datapoint,index) =>{
+                    const datasetArray = [];
+
+                    chart.data.datasets.forEach((dataset) => {
+                        datasetArray.push(dataset.data[index])
+                    })
+
+                    function totalSum(total, values){
+                        return total + values;
+                    };
+
+                    let sum = datasetArray.reduce(totalSum,0);
+
+                    if(sum >1000000 ){
+                        sum =   Math.round(sum/1000000*10)/10 + ' MM';
+                    }else if(sum >=1000){
+                        sum =  Math.round(sum/1000*10)/10 + ' K';
+                        
+                    }else if(sum==0){
+                        sum = '';
+                    }else{
+                        sum =  sum;
+                    }
+
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(sum ,x.getPixelForValue(index),chart.getDatasetMeta(6).data[index].y-10);
+
+
+                })
+
+                
+            }
+        }
+
+        var oc_generadas_dic = JSON.parse(document.getElementById('OC_generadas').getAttribute('oc_generadas_dic'));
+        var cant_mes = JSON.parse(document.getElementById('OC_generadas').getAttribute('cant_mes'));
+        var monto_mes = JSON.parse(document.getElementById('OC_generadas').getAttribute('monto_mes'));
+
+        var ctx2 = document.getElementById('OC_generadas').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['2023','Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'],
+
+                datasets: [{
+                    label: 'Certificado',
+                    data: oc_generadas_dic.Certificado,
+                    backgroundColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                    borderColor: ['rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)','rgb(68,175,105,1)'],
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'En Certificación',
+                    data: oc_generadas_dic['En Certificación'],
+                    backgroundColor: 'rgb(2,35,28)',
+                    borderColor: 'rgb(2,35,28)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Terminado',
+                    data: oc_generadas_dic.Terminado,
+                    backgroundColor: 'rgb(0,77,37)',
+                    borderColor: 'rgb(0,77,37)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Diseño Ejecutado',
+                    data: oc_generadas_dic['Diseño Ejecutado'] ,
+                    backgroundColor: 'rgb(17,130,59)',
+                    borderColor: 'rgb(17,130,59)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Diseño',
+                    data: oc_generadas_dic.Diseño,
+                    backgroundColor: 'rgb(72,191,83)',
+                    borderColor: 'rgb(72,191,83)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Registrado',
+                    data: oc_generadas_dic.Registrado,
+                    backgroundColor: 'rgb(145,240,134)',
+                    borderColor: 'rgb(145,240,134)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Cancelado',
+                    data: oc_generadas_dic.Cancelado,
+                    backgroundColor: 'rgb(169,146,125)',
+                    borderColor: 'rgb(169,146,125)',
+                    borderWidth: 1,
+                    order:2
+                }
+            
+            
+                ]
+
+            },
+            options: {
+                responsive: true,
+                
+                scaleShowVerticalLines: false,
+                scales:{
+                    
+                    x:{
+                        grid:{drawOnChartArea: false},
+                        stacked:'true'
+                    },
+                    y:{
+                        stacked:'true',
+                        
+                    }
+                },
+                plugins:{
+                    legend: {
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 6
+                            }
+                    },
+                    datalabels:{
+                        color:'white',
+                        maintainAspectRatio: false,
+                        
+                        formatter: function(value, context) {
+                            if(value >1000000 ){
+                                return Math.round(value/1000000*10)/10 + ' MM';
+                            }else if(value >=1000){
+                                return Math.round(value/1000*10)/10 + ' K';
+                                
+                            }else if(value==0){
+                                return '';
+                            }else{
+                                return value;
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels, topLabels]
+        });
+
+
+        /*-----------Chart Vertical Bars Group,  Certificacion Mensual---------------------------*/
+        var cant_cert = JSON.parse(document.getElementById('CD2').getAttribute('cant_cert'));
+        var monto_ini_cert = JSON.parse(document.getElementById('CD2').getAttribute('monto_ini_cert'));
+        var monto_fin_cert = JSON.parse(document.getElementById('CD2').getAttribute('monto_fin_cert'));
+        var monto_prom_cert = JSON.parse(document.getElementById('CD2').getAttribute('monto_prom_cert'));
+        
+        var ctx2 = document.getElementById('CD2').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'],
+
+                datasets: [{
+                    label: 'Costo Original OC',
+                    data: monto_ini_cert,
+                    backgroundColor: 'rgb(68,175,105,1)',
+                    borderColor: 'rgb(68,175,105,1)',
+                    borderWidth: 1,
+                    order:2
+                },
+                {
+                    label: 'Costo Diseño',
+                    data: monto_fin_cert,
+                    backgroundColor: 'rgb(180,223,195,1)',
+                    borderColor: 'rgb(180,223,195,1)',
+                    borderWidth: 1,
+                    order:2
+                },
+                {
+                    label: 'Costo Promedio de Diseño',
+                    data: monto_prom_cert,
+                    backgroundColor: 'rgb(9,68,39,1)',
+                    borderColor: 'rgb(9,68,39,1)',
+                    borderWidth: 1,
+                    order:2
+                }],
+
+                
+
+
+            },
+            options: {
+                responsive: true,
+                
+                scaleShowVerticalLines: false,
+                scales:{
+                    
+                    x:{
+                        grid:{drawOnChartArea: false}
+                    }
+                },
+                plugins:{
+                    datalabels:{
+                        color:'grey',
+                        maintainAspectRatio: false,
+                        align: 'top',
+                        anchor: 'end',
+                        formatter: function(value, context) {
+                            if(value >1000000 ){
+                                return Math.round(value/1000000*10)/10 + ' MM';
+                            }else if(value >=1000){
+                                return Math.round(value/1000*10)/10 + ' K';
+                                
+                            }else if(value==0){
+                                return '';
+                            }else{
+                                return value;
+                            }
+                            
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+     });
+
+        function theFunction() {
+          año = document.getElementById("año").innerHTML;
+          if (año == "2024") {
+            document.getElementById("año").textContent = "2023";
+          } else {
+            document.getElementById("año").textContent = "2024";
+          }
+        }
+    </script>
+
+{% endblock %}

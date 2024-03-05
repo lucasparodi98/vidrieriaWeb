@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+  <title>{% block title %}{% endblock %} - Obras Públicas</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head %}{% endblock %}
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://kit.fontawesome.com/b634328538.js" crossorigin="anonymous"></script>
+  <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  {% block scripts %}{% endblock %}
+</head>
+
+<body>
+  <nav>
+    <button class="openbtn" onclick="openCloseNav()">☰</button>  
+  </nav>
+
+  
+  <div id="main">
+    <div class="sidebar border-end bg-white" id="mySidebar" style="white-space: nowrap;">
+      <a href="{{ url_for('index') }}"><h3>Vidrieria</h3></a>
+      {% if g.user %}
+        {% if g.user['user_type'] == 'admin' %}
+          <a><b>Administración</b></a>
+          <a style="font-size: 16px; padding-left: 32px;" href="{{ url_for('auth.register') }}">Crear Usuario</a>
+        {% endif %}
+        <a><b>Movimientos</b></a>
+        <a style="font-size: 16px; padding-left: 32px;" href="{{ url_for('movimiento.createMovimiento') }}">Nuevo Movimiento</a>
+        <a style="font-size: 16px; padding-left: 32px;" href="{{ url_for('movimiento.indexMovimiento') }}">Ver Tabla</a>
+
+        <hr class="hr" />
+        <a><b>{{ g.user['username'] }}</b></a>
+        <a style="font-size: 16px; padding-left: 32px;" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a>
+
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Iniciar Sesión</a>
+      {% endif %}
+    </div>
+
+    <section class="content">
+      <header>
+        {% block header %}{% endblock %}
+      </header>
+      {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </section>
+  </div>
+
+  <script>
+    function openCloseNav() {
+      if (document.getElementById("mySidebar").style.width == "250px") {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+      } else {
+        document.getElementById("mySidebar").style.width = "250px";
+        /*document.getElementById("main").style.marginLeft = "250px";*/
+      }
+    }
+  </script>
+  
+</body>

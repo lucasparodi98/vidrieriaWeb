@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Registrar nueva solicitud de Inf. de Red{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post" enctype="multipart/form-data" name="form1">
+    <div class="row">
+      <div class="col">
+        <label for="tipo">Tipo*</label>
+        <select id="tipo" name="tipo" class="form-select" value="{{ request.form['tipo'] }}" placeholder="Tipo Movimiento" required>
+          <option disabled selected value> -- Elige una opción -- </option>
+          <option>Entrada</option>
+          <option>Salida</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="destino">Método de Pago*</label>
+        <select id="destino" name="destino" class="form-select" value="{{ request.form['destino'] }}" placeholder="Método Pago" required>
+          <option disabled selected value> -- Elige una opción -- </option>
+          <option>Efectivo</option>
+          <option>Depósito</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="monto">Monto*</label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">S/.</span>
+            </div>
+            <input id="monto" name="monto" class="form-control" type="number" step="0.01" min="0.00"
+                value="{{ request.form['monto'] }}" placeholder="Monto">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="comentario">Comentario/Detalle</label>
+        <textarea id="comentario" name="comentario" class="form-control" value="{{ request.form['comentario'] }}" placeholder="Comentario"></textarea>
+      </div>
+    </div>
+    
+
+    <br>
+    <input class="btn btn-primary" type="submit" value="Guardar">
+  </form>
+{% endblock %}

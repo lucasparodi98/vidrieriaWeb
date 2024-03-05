@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Dashboard Tiempos Promedio [FALTA IMPLEMENTAR]{% endblock %}</h1>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_tiempos.css') }}">
+
+{% endblock %}
+
+{% block content %} 
+    
+    <style>
+        .leaflet-container {
+            background-color:rgba(238, 10, 10, 0);
+        }
+
+        #map{
+            height: 100vh;
+            width: 100%;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        .info h4 {
+            margin: 0 0 5px;
+            color: #777;
+        }
+
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+
+
+    </style>
+    
+            <!--=============== PROGRESS BAR ===================================================-->
+            <div style="padding: 0px 20px; padding-top:10px; text-align:center">
+                <div style="padding: 10px 20px; background-color:white; border-radius: 10px; box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);">
+                    <h2 style="margin-bottom: 10px; font-size: 20px; color: #666; text-align: left">Duracion promedio de un proyecto: {{tma_total}} días</h2>
+                    <div class="progressBar" style="background-color:magenta">
+                        <div id="tma_porc_info_red" class="progreso" style="width: {{tma_info_red/tma_total*100}}%; min-width:4%; background-color: blue; border-top-left-radius: 10px; border-bottom-left-radius: 10px">{{tma_info_red}} días</div>
+                        <div id="tma_porc_oc" class="progreso" style="width: {{tma_oc/tma_total*100}}%; min-width:4%; background-color: green">{{tma_oc}} días</div>
+                        <div id="tma_porc_diseño" class="progreso" style="width: {{tma_diseño/tma_total*100}}%; min-width:4%; background-color: red">{{tma_diseño}} días</div>
+                        <div id="tma_porc_ppto" class="progreso" style="width: {{tma_ppto/tma_total*100}}%; min-width:4%; background-color: orange">{{tma_ppto}} días</div>
+                        <div id="tma_porc_coord" class="progreso" style="min-width:4%; background-color: magenta; border-top-right-radius: 10px; border-bottom-right-radius: 10px">{{tma_coordinacion}} días</div>
+                    </div>
+                   <div class="leyenda">
+                        <div class="elementoLey">
+                            <div class="dot" style="background-color:blue"></div>
+                            <div onclick="window.location='tiempos_inf_red';"  class="textoLey" style="color:blue">Informacion de Red</div>
+                        </div>
+                        <div class="elementoLey">
+                            <div class="dot" style="background-color:green"></div>
+                            <div class="textoLey" style="color:green">Creacion OC</div>
+                        </div>
+                        <div class="elementoLey">
+                            <div class="dot" style="background-color:red"></div>
+                            <div onclick="window.location='tiempos_diseño';" class="textoLey" style="color:red">Diseño</div>
+                        </div>
+                        <div class="elementoLey">
+                            <div class="dot" style="background-color:orange"></div>
+                            <div onclick="window.location='tiempos_presupuesto';" class="textoLey" style="color:orange">Presupuesto</div>
+                        </div>
+                        <div class="elementoLey">
+                            <div class="dot" style="background-color:magenta"></div>
+                            <div onclick="window.location='tiempos_coordinacion';" class="textoLey" style="color:magenta">Coordinación</div>
+                        </div>
+                        
+                   </div>
+                </div>
+            </div>
+
+            <!--=============== TARJETAS ===================================================-->
+            <div class="cards-4">
+                <div class="card_flex" style="cursor: pointer;" onclick="theFunction()">
+                    <div class="card-content">
+                        <div class="number" id="año">2024</div>
+                        <div class="card-name">Informacion de Red</div>
+                        
+                    </div>
+                    <div class="icon-box">
+                        <i class="fal fa-server"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">{{ingresadas}}</div>
+                        <div class="card-name">Solicitudes Ingresadas</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">{{atendidas}}</div>
+                        <div class="card-name">Solicitudes Atendidas</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fas fa-share-square"></i>
+                    </div>
+                </div>
+                <div class="card_flex">
+                    <div class="card-content">
+                        <div class="number">{{tma_info_red}} días</div>
+                        <div class="card-name">Tiempo Promedio de Respuesta</div>
+                    </div>
+                    <div class="icon-box">
+                        <i class="fal fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--=============== GRAFICOS ===================================================-->
+            
+
+            <div class="charts" style="grid-template-columns: 3fr 2fr;">
+                
+                    <div class="chart">
+                        <h2>Solicitudes Atendidas por Mes</h2>
+                        <br>
+                        <canvas id="SolicitudesAtendidas" prom_mes="{{prom_mes}}" cant_mes="{{cant_mes}}"></canvas>
+                    </div>
+                    
+                
+                
+                <div>
+                    <div class="chart">
+                        <h2 style="text-align:left; padding-bottom:10px">Solicitudes Atendidas</h2>
+                        
+
+                            <div style="display:flex; border-left: 5px solid  #299b63; padding-left: 10px; margin:10px 0px; height:40px; ">
+                                <div class="circulos">{{sin_inter}}</div>
+                                <div style="padding-left: 10px">
+                                    <div >Sin Interferencia</div>
+                                    <div style="font-size: 14px;">La entidad no solicitó presupuesto</div>
+                                </div>
+                                
+                            </div>
+                            <div style="display:flex; border-left: 5px solid  #299b63; padding-left: 10px; margin:10px 0px; height:40px;">
+                                <div class="circulos">{{con_inter}}</div>
+                                <div style="padding-left: 10px"> 
+                                    <div >Con Interferencia</div>
+                                    <div style="font-size: 14px;">Se han generado 4 solicitudes de presupuesto</div>
+                                </div>
+                            </div>  
+                            
+                    </div>
+                    <div style="height:10px"></div>
+                    
+                    <div class="chart doughnut-chart">
+                        <h2>Estado Actual de las Solicitudes de Presupuesto</h2>
+                        <canvas id="EstadoActual" estados_con_inter="{{estados_con_inter}}" cant_con_inter="{{cant_con_inter}}"></canvas>
+                    </div>
+
+                </div>
+                
+            </div>
+
+    {% endblock %}
+
+    {% block scripts %}            
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="{{ url_for('static', filename='peru_departamental_JS.js') }}"></script>
+
+    <script>
+        
+        $( document ).ready(function() {
+        
+        var ancho = parseFloat(document.getElementById('tma_porc_info_red').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_oc').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_diseño').style.width,10)+
+                    parseFloat(document.getElementById('tma_porc_ppto').style.width,10);
+        document.getElementById('tma_porc_coord').style.width = Math.floor(100-ancho)-2+'%';
+
+        /*====================Chart Bar - Solicitudes Atendidas====================*/
+        var cant_mes= JSON.parse(document.getElementById('SolicitudesAtendidas').getAttribute('cant_mes'));
+        var prom_mes= JSON.parse(document.getElementById('SolicitudesAtendidas').getAttribute('prom_mes'));
+        var ctx2 = document.getElementById('SolicitudesAtendidas').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'],
+
+                datasets: [{
+                    label: 'Cantidad de Solicitudes Atendidas',
+                    data: cant_mes,
+                    backgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    order:2
+                },{
+                    label: 'Tiempo Promedio de Respuesta (días)',
+                    data: prom_mes,
+                    backgroundColor: 'rgba(0, 0, 128, 1)',
+                    borderColor: 'rgba(0, 0, 128, 1)',
+                    type: 'line',
+                    order:1
+
+
+                }]
+
+            },
+            options: {
+                responsive: true
+                
+            }
+        });
+
+        /*====================Chart Bar - Estado Actual Solicitudes Atendidas====================*/
+        var cant_con_inter= JSON.parse(document.getElementById('EstadoActual').getAttribute('cant_con_inter'));
+        var estados_con_inter= document.getElementById('EstadoActual').getAttribute('estados_con_inter').split(",");
+        var ctx = document.getElementById('EstadoActual').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: estados_con_inter,
+                datasets: [{
+                    data: cant_con_inter,
+                    backgroundColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+
+
+                    ],
+                    borderColor: [
+                        'rgba(5,129,255, 1)',
+                        'rgba(220,53,69, 1)',
+                        'rgba(27,163,69, 1)',
+                        'rgba(254,192,1, 1)',
+                        'rgba(222,62,68, 1)',
+                        'rgba(107,117,125, 1)'
+                
+                    ],
+
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales:{
+                    y:{
+                        grid:{
+                            display:false
+                        }
+                    },
+                    x:{
+                        grid:{
+                            display:false
+                        }
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',    
+                    },
+                    legend:{
+                        display: false
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+            
+            
+        });
+
+    });
+
+
+    /*====================Leaflet Mapa por departamentos====================
+    var map = L.map('map' , { zoomControl: false , scrollWheelZoom: false, doubleClickZoom: false})
+
+    L.geoJSON(dataDepartamentos).addTo(map);
+    map.fitBounds(L.geoJSON(dataDepartamentos).getBounds());
+
+
+    function getColor(d) {
+        return d > 100 ? '#800026' :
+            d > 70  ? '#E31A1C' :
+            d > 50   ? '#FD8D3C' :
+            d > 20   ? '#FED976' :
+                        '#FFEDA0';
+    }
+
+    function style(feature) {
+        return {
+            fillColor: getColor(feature.properties.COUNT),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+        };
+    }
+
+    L.geoJson(dataDepartamentos, {style: style}).addTo(map);
+
+    function highlightFeature(e) {
+        var layer = e.target;
+
+        layer.setStyle({
+            weight: 5,
+            color: '#666',
+            dashArray: '',
+            fillOpacity: 0.7
+        });
+        
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+            layer.bringToFront();
+        }
+
+        info.update(layer.feature.properties);
+    }
+
+    function resetHighlight(e) {
+        geojson.resetStyle(e.target);
+        info.update();
+    }
+
+    var geojson;
+    // ... our listeners
+    geojson = L.geoJson(dataDepartamentos);
+
+    function zoomToFeature(e) {
+        map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+        layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+            //click: zoomToFeature
+        });
+    }
+
+    geojson = L.geoJson(dataDepartamentos, {
+        style: style,
+        onEachFeature: onEachFeature
+    }).addTo(map);
+
+    var info = L.control();
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info.update = function (props) {
+        this._div.innerHTML = '<h2 style="font-size:15px;">Número de proyectos</h2>' +  (props ?
+            '<b>' + props.NOMBDEP + '</b><br />' + props.COUNT + ' proyectos'
+            : 'Elige un departamento');
+    };
+
+    info.addTo(map);
+
+    var legend = L.control({position: 'topleft'});
+
+    legend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 20, 50, 70, 100],
+            labels = [];
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+        }
+
+        return div;
+    };
+
+    legend.addTo(map);*/
+
+
+
+
+
+
+
+    </script>
+
+    
+
+
+{% endblock %}
+
+
